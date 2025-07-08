@@ -1,9 +1,9 @@
 import type { Response } from "express";
-import type { AuthenticatedRequest } from "../middleware/auth.middleware.ts";
 import { db } from "../config/db.ts";
-import { challenges, challengeParticipants } from "../db/schema.ts";
-import { v4 as uuidv4 } from "uuid";
 import { and, eq } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
+import type { AuthenticatedRequest } from "../middleware/auth.middleware.ts";
+import { challenges, challengeParticipants } from "../db/schema.ts";
 
 export const createChallenge = async (
   req: AuthenticatedRequest,
@@ -98,7 +98,33 @@ export const leaveChallenge = async (
   res: Response
 ) => {
   try {
-  } catch (error) {}
+    const userId = req.user?.id;
+    const challengeId = req.params.id;
+
+    if (!userId || !challengeId) {
+      res.status(400).json({ error: "Missinf user or challenge ID" });
+      return;
+    }
+
+    const deleted = await db
+      .delete(challengeParticipants)
+      .where(
+        and(
+          eq(challengeParticipants.userId, userId),
+          eq(challengeParticipants.challengeId, challengeId)
+        )
+      );
+
+    if (deleted.rowCount === 0) {
+      res.status(404).json({ error: "Not part of this challenge" });
+      return;
+    }
+    res.status(200).json({ message: "Left challenge successfully" });
+    return;
+  } catch (error) {
+    console.error("leaveChallenge error:", error);
+    res.status(500).json({ error: "Failed to leave challenge" });
+  }
 };
 export const getUserChallenges = async (
   req: AuthenticatedRequest,
