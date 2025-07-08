@@ -1,8 +1,9 @@
 import type { Response } from "express";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware.ts";
 import { db } from "../config/db.ts";
-import { challenges } from "../db/schema.ts";
+import { challenges, challengeParticipants } from "../db/schema.ts";
 import { v4 as uuidv4 } from "uuid";
+import { and, eq } from "drizzle-orm";
 
 export const createChallenge = async (
   req: AuthenticatedRequest,
@@ -54,7 +55,42 @@ export const joinChallenge = async (
   res: Response
 ) => {
   try {
-  } catch (error) {}
+    const userId = req.user?.id;
+    const challengeId = req.params.id;
+
+    if (!challengeId || !userId) {
+      res.status(400).json({ error: "Missing challenge ID or User ID" });
+      return;
+    }
+
+    // Check if already joined
+    const existing = await db
+      .select()
+      .from(challengeParticipants)
+      .where(
+        and(
+          eq(challengeParticipants.challengeId, challengeId),
+          eq(challengeParticipants.userId, userId)
+        )
+      );
+
+    if (existing.length > 0) {
+      res.status(400).json({ error: "Already joined this challenge" });
+      return;
+    }
+    const participantId = uuidv4();
+    await db.insert(challengeParticipants).values({
+      id: participantId,
+      userId,
+      challengeId,
+    });
+
+    res.status(200).json({ message: "Challenge joined successfully" });
+    return;
+  } catch (error) {
+    console.error("joinChallenge error:", error);
+    res.status(500).json({ error: "Failed to join challenge" });
+  }
 };
 
 export const leaveChallenge = async (
