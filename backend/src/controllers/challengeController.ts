@@ -35,7 +35,18 @@ export const getAllChallenges = async (
   res: Response
 ) => {
   try {
-  } catch (error) {}
+    const allChallenges = await db
+      .select()
+      .from(challenges)
+      .orderBy(challenges.createdAt); // ASC first
+    // For newest first:
+    // .orderBy(desc(challenges.createdAt))
+    res.status(200).json({ challenges: allChallenges });
+    return;
+  } catch (error) {
+    console.error("Error fetching all challenges.", error);
+    res.status(500).json({ error: "Failed to fetch challenges" });
+  }
 };
 
 export const joinChallenge = async (
