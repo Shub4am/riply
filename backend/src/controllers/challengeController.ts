@@ -126,10 +126,37 @@ export const leaveChallenge = async (
     res.status(500).json({ error: "Failed to leave challenge" });
   }
 };
+
 export const getUserChallenges = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-  } catch (error) {}
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+
+    const joined = await db
+      .select({
+        challengeId: challengeParticipants.challengeId,
+        challenge: challenges,
+      })
+      .from(challengeParticipants)
+      .innerJoin(
+        challenges,
+        eq(challengeParticipants.challengeId, challenges.id)
+      )
+      .where(eq(challengeParticipants.userId, userId));
+
+    const userChallenges = joined.map((entry) => entry.challenge);
+
+    res.status(200).json({ challenges: userChallenges });
+    return;
+  } catch (error) {
+    console.error("getUserChallenges error:", error);
+    res.status(500).json({ error: "Failed to fetch user challenges" });
+  }
 };
