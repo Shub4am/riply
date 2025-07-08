@@ -1,17 +1,16 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import authRoutes from "./routes/authRoutes.ts";
 
 dotenv.config();
 const app = express();
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle({ client: sql });
-
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use("/api/auth", authRoutes);
 
 app.get("/", (_, res) => {
   res.status(200).send("Riply API running");
