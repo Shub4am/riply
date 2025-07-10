@@ -10,6 +10,7 @@ export const users = pgTable("users", {
 
 export const challenges = pgTable("challenges", {
   id: uuid("id").primaryKey().defaultRandom(),
+  image: text("image").notNull(),
   title: varchar("title", { length: 100 }).notNull(),
   description: text("description").notNull(),
   creatorId: uuid("creator_id")

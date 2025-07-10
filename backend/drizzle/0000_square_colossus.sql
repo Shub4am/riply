@@ -7,6 +7,7 @@ CREATE TABLE "challenge_participants" (
 --> statement-breakpoint
 CREATE TABLE "challenges" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"image" text NOT NULL,
 	"title" varchar(100) NOT NULL,
 	"description" text NOT NULL,
 	"creator_id" uuid NOT NULL,
