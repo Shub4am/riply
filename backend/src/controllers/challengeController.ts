@@ -4,23 +4,31 @@ import { and, eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware.ts";
 import { challenges, challengeParticipants } from "../db/schema.ts";
+import cloudinary from "../config/cloudinary.ts";
 
 export const createChallenge = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, image } = req.body;
     const userId = req.user?.id;
 
-    if (!title || !description) {
-      res.status(400).json({ error: "Title and description are required" });
+    if (!title || !description || !image) {
+      res
+        .status(400)
+        .json({ error: "Title, description, and image are required" });
       return;
     }
+
+    const uploadResponse = await cloudinary.uploader.upload(image);
+    const imageUrl = uploadResponse.secure_url;
+
     const challengeId = uuidv4();
 
     await db.insert(challenges).values({
       id: challengeId,
+      image: imageUrl,
       title,
       description,
       creatorId: userId!,
@@ -28,7 +36,10 @@ export const createChallenge = async (
 
     res.status(201).json({ message: "Challenge created", challengeId });
     return;
-  } catch (error) {}
+  } catch (error) {
+    console.error("createChallenge error:", error);
+    res.status(500).json({ error: "Failed to create challenges" });
+  }
 };
 
 export const getAllChallenges = async (
