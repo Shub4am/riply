@@ -3,10 +3,12 @@ import dotenv from "dotenv";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.ts";
 import challengeRoutes from "./routes/challengeRoutes.ts";
+import job from "./config/cron.ts";
 
 dotenv.config();
 const app = express();
 
+job.start();
 app.use(cors());
 app.use(express.json());
 
