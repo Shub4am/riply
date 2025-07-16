@@ -49,7 +49,14 @@ export const signup = async (req: Request, res: Response) => {
     });
 
     const token = signToken({ id: userId, email });
-    res.status(201).json({ token });
+    res.status(201).json({
+      token,
+      user: {
+        id: userId,
+        name,
+        email,
+      },
+    });
   } catch (error) {
     console.error("Signup error:", error);
     res.status(500).json({ error: "Something went wrong" });
@@ -79,7 +86,14 @@ export const login = async (req: Request, res: Response) => {
 
     const token = signToken({ id: user.id, email });
 
-    res.status(200).json({ token });
+    res.status(200).json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.log("Error in login route", error);
     res.status(500).json({ message: "Internal server error" });
