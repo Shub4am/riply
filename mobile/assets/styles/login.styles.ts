@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
     color: COLORS.textPrimary,
-    fontWeight: "500",
+    fontFamily: "Poppins-Medium",
   },
   inputContainer: {
     flexDirection: "row",
@@ -79,6 +79,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     color: COLORS.textDark,
+    fontFamily: "Poppins-Regular",
+    fontSize: 16,
+    includeFontPadding: false,
   },
   eyeIcon: {
     padding: 8,
@@ -98,8 +101,9 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: COLORS.white,
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 20,
+    fontFamily: "Poppins-Medium",
+    includeFontPadding: false,
   },
   footer: {
     flexDirection: "row",
@@ -109,10 +113,13 @@ const styles = StyleSheet.create({
   footerText: {
     color: COLORS.textSecondary,
     marginRight: 5,
+    fontFamily: "Poppins-Regular",
+    includeFontPadding: false,
   },
   link: {
     color: COLORS.primary,
-    fontWeight: "600",
+    fontFamily: "Poppins-Medium",
+    includeFontPadding: false,
   },
 });
 

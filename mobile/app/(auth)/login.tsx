@@ -99,7 +99,7 @@ export default function Login() {
               {isLoading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.buttonText}>Login</Text>
+                <Text style={styles.buttonText}>Log in</Text>
               )}
             </TouchableOpacity>
             {/* Footer  */}
