@@ -11,7 +11,7 @@ export const signup = async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      res.status(400).json({ error: "All fields are required." });
+      res.status(400).json({ message: "All fields are required." });
       return;
     }
     if (password.length < 6) {
@@ -34,7 +34,7 @@ export const signup = async (req: Request, res: Response) => {
       .where(eq(users.email, email));
 
     if (existingUser.length > 0) {
-      res.status(400).json({ error: "User already exists" });
+      res.status(400).json({ message: "User already exists" });
       return;
     }
 
@@ -59,7 +59,7 @@ export const signup = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error("Signup error:", error);
-    res.status(500).json({ error: "Something went wrong" });
+    res.status(500).json({ message: "Something went wrong" });
   }
 };
 
@@ -67,7 +67,7 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      res.status(400).json({ error: "All fields are required." });
+      res.status(400).json({ message: "All fields are required." });
       return;
     }
 
@@ -77,14 +77,14 @@ export const login = async (req: Request, res: Response) => {
       .where(eq(users.email, email));
 
     if (existing.length === 0) {
-      res.status(400).json({ error: "Invalid credentials" });
+      res.status(400).json({ message: "Invalid credentials" });
       return;
     }
 
     const user = existing[0];
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) {
-      res.status(400).json({ error: "Invalid credentials" });
+      res.status(400).json({ message: "Invalid credentials" });
       return;
     }
 
