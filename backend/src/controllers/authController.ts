@@ -66,6 +66,10 @@ export const signup = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) {
+      res.status(400).json({ error: "All fields are required." });
+      return;
+    }
 
     const existing = await db
       .select()
