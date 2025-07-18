@@ -12,6 +12,7 @@ type AuthStoreState = {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  authChecked: boolean;
   signup: (
     name: string,
     email: string,
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
   user: null,
   token: null,
   isLoading: false,
+  authChecked: false,
 
   signup: async (name, email, password) => {
     set({ isLoading: true });
@@ -70,9 +72,10 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
       const userJson = await AsyncStorage.getItem("user");
       const user = userJson ? JSON.parse(userJson) : null;
 
-      set({ token, user });
+      set({ token, user, authChecked: true });
     } catch (error) {
       console.log("Auth check failed", error);
+      set({ authChecked: true });
     }
   },
 
