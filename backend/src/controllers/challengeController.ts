@@ -17,7 +17,7 @@ export const createChallenge = async (
     if (!title || !description || !image) {
       res
         .status(400)
-        .json({ error: "Title, description, and image are required" });
+        .json({ message: "Title, description, and image are required" });
       return;
     }
 
@@ -38,7 +38,7 @@ export const createChallenge = async (
     return;
   } catch (error) {
     console.error("createChallenge error:", error);
-    res.status(500).json({ error: "Failed to create challenges" });
+    res.status(500).json({ message: "Failed to create challenges" });
   }
 };
 
@@ -57,7 +57,7 @@ export const getAllChallenges = async (
     return;
   } catch (error) {
     console.error("Error fetching all challenges.", error);
-    res.status(500).json({ error: "Failed to fetch challenges" });
+    res.status(500).json({ message: "Failed to fetch challenges" });
   }
 };
 
@@ -70,7 +70,7 @@ export const joinChallenge = async (
     const challengeId = req.params.id;
 
     if (!challengeId || !userId) {
-      res.status(400).json({ error: "Missing challenge ID or User ID" });
+      res.status(400).json({ message: "Missing challenge ID or User ID" });
       return;
     }
 
@@ -86,7 +86,7 @@ export const joinChallenge = async (
       );
 
     if (existing.length > 0) {
-      res.status(400).json({ error: "Already joined this challenge" });
+      res.status(400).json({ message: "Already joined this challenge" });
       return;
     }
     const participantId = uuidv4();
@@ -100,7 +100,7 @@ export const joinChallenge = async (
     return;
   } catch (error) {
     console.error("joinChallenge error:", error);
-    res.status(500).json({ error: "Failed to join challenge" });
+    res.status(500).json({ message: "Failed to join challenge" });
   }
 };
 
@@ -113,7 +113,7 @@ export const leaveChallenge = async (
     const challengeId = req.params.id;
 
     if (!userId || !challengeId) {
-      res.status(400).json({ error: "Missinf user or challenge ID" });
+      res.status(400).json({ message: "Missinf user or challenge ID" });
       return;
     }
 
@@ -127,14 +127,14 @@ export const leaveChallenge = async (
       );
 
     if (deleted.rowCount === 0) {
-      res.status(404).json({ error: "Not part of this challenge" });
+      res.status(404).json({ message: "Not part of this challenge" });
       return;
     }
     res.status(200).json({ message: "Left challenge successfully" });
     return;
   } catch (error) {
     console.error("leaveChallenge error:", error);
-    res.status(500).json({ error: "Failed to leave challenge" });
+    res.status(500).json({ message: "Failed to leave challenge" });
   }
 };
 
@@ -146,7 +146,7 @@ export const getUserChallenges = async (
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
@@ -168,6 +168,6 @@ export const getUserChallenges = async (
     return;
   } catch (error) {
     console.error("getUserChallenges error:", error);
-    res.status(500).json({ error: "Failed to fetch user challenges" });
+    res.status(500).json({ message: "Failed to fetch user challenges" });
   }
 };
