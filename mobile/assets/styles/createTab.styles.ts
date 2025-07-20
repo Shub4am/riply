@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 20,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
@@ -32,6 +32,14 @@ const styles = StyleSheet.create({
   header: {
     alignItems: "center",
     marginBottom: 24,
+  },
+  username: {
+    fontSize: 20,
+    fontFamily: "Poppins-Medium",
+    includeFontPadding: false,
+    color: COLORS.primary,
+    marginBottom: 8,
+    textAlign: "center",
   },
   title: {
     fontSize: 24,

@@ -29,7 +29,7 @@ export default function Create() {
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
 
   const uploadImage = async () => {
     try {
@@ -142,6 +142,7 @@ export default function Create() {
         style={styles.scrollViewStyle}
       >
         <View style={styles.card}>
+          <Text style={styles.username}>Welcome {user && user.name}</Text>
           {/* Header  */}
           <View style={styles.header}>
             <Text style={styles.title}>Post a friendly Challenge</Text>
