@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import { db } from "../config/db.ts";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware.ts";
 import { challenges, challengeParticipants } from "../db/schema.ts";
@@ -47,16 +47,35 @@ export const getAllChallenges = async (
   res: Response
 ) => {
   try {
+    // Parse page and limit from query, with defaults
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 5;
+    const offset = (page - 1) * limit;
+
+    // Get paginated challenges
     const allChallenges = await db
       .select()
       .from(challenges)
-      .orderBy(challenges.createdAt); // ASC first
-    // For newest first:
-    // .orderBy(desc(challenges.createdAt))
-    res.status(200).json({ challenges: allChallenges });
-    return;
+      .orderBy(desc(challenges.createdAt)) // ASC first
+      // For newest first:
+      // .orderBy(desc(challenges.createdAt))
+      .limit(limit)
+      .offset(offset);
+
+    // Get total count
+    const total = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(challenges);
+    const totalChallenges = total[0]?.count ?? 0;
+
+    res.status(200).json({
+      challenges: allChallenges,
+      currentPage: page,
+      totalChallenges,
+      totalPages: Math.ceil(totalChallenges / limit),
+    });
   } catch (error) {
-    console.error("Error fetching all challenges.", error);
+    console.error("Error fetching paginated challenges:", error);
     res.status(500).json({ message: "Failed to fetch challenges" });
   }
 };
