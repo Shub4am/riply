@@ -22,14 +22,14 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontFamily: "Poppins-Medium",
+    fontFamily: "Poppins-Bold",
     includeFontPadding: false,
-    letterSpacing: 0.5,
+    letterSpacing: 1.5,
     color: COLORS.primary,
     marginBottom: 8,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: COLORS.textSecondary,
     textAlign: "center",
     fontFamily: "Poppins-Regular",
