@@ -3,7 +3,7 @@ import { db } from "../config/db.ts";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import type { AuthenticatedRequest } from "../middleware/auth.middleware.ts";
-import { challenges, challengeParticipants } from "../db/schema.ts";
+import { challenges, challengeParticipants, users } from "../db/schema.ts";
 import cloudinary from "../config/cloudinary.ts";
 
 export const createChallenge = async (
@@ -42,31 +42,78 @@ export const createChallenge = async (
   }
 };
 
+// export const getAllChallenges = async (
+//   req: AuthenticatedRequest,
+//   res: Response
+// ) => {
+//   try {
+//     // Parse page and limit from query, with defaults
+//     const page = parseInt(req.query.page as string) || 1;
+//     const limit = parseInt(req.query.limit as string) || 5;
+//     const offset = (page - 1) * limit;
+
+//     // Get paginated challenges
+//     const allChallenges = await db
+//       .select()
+//       .from(challenges)
+//       .orderBy(desc(challenges.createdAt)) // ASC first
+//       // For newest first:
+//       // .orderBy(desc(challenges.createdAt))
+//       .limit(limit)
+//       .offset(offset);
+
+//     // Get total count
+//     const total = await db
+//       .select({ count: sql<number>`count(*)` })
+//       .from(challenges);
+//     const totalChallenges = total[0]?.count ?? 0;
+
+//     res.status(200).json({
+//       challenges: allChallenges,
+//       currentPage: page,
+//       totalChallenges,
+//       totalPages: Math.ceil(totalChallenges / limit),
+//     });
+//   } catch (error) {
+//     console.error("Error fetching paginated challenges:", error);
+//     res.status(500).json({ message: "Failed to fetch challenges" });
+//   }
+// };
+
 export const getAllChallenges = async (
   req: AuthenticatedRequest,
   res: Response
 ) => {
+  console.log("✅ getAllChallenges hit at", new Date().toISOString()); // ← Add this
   try {
-    // Parse page and limit from query, with defaults
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 5;
     const offset = (page - 1) * limit;
 
-    // Get paginated challenges
     const allChallenges = await db
-      .select()
+      .select({
+        id: challenges.id,
+        image: challenges.image,
+        title: challenges.title,
+        description: challenges.description,
+        creatorId: challenges.creatorId,
+        createdAt: challenges.createdAt,
+        creatorName: users.name,
+      })
       .from(challenges)
-      .orderBy(desc(challenges.createdAt)) // ASC first
-      // For newest first:
-      // .orderBy(desc(challenges.createdAt))
+      .innerJoin(users, eq(challenges.creatorId, users.id))
+      .orderBy(desc(challenges.createdAt))
       .limit(limit)
       .offset(offset);
+
+    console.log("allChallenges:");
 
     // Get total count
     const total = await db
       .select({ count: sql<number>`count(*)` })
       .from(challenges);
     const totalChallenges = total[0]?.count ?? 0;
+    console.log("allChallenges result:", allChallenges);
 
     res.status(200).json({
       challenges: allChallenges,
