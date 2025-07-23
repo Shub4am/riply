@@ -6,6 +6,8 @@ import {
   ListRenderItem,
   ActivityIndicator,
   RefreshControl,
+  Pressable,
+  Alert,
 } from "react-native";
 import { useAuthStore } from "@/store/authStore";
 import { Image } from "expo-image";
@@ -36,6 +38,10 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [joinedChallengeIds, setJoinedChallengeIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
 
   const fetchChallenges = async (pageNo = 1, refresh = false) => {
     try {
@@ -79,7 +85,33 @@ export default function Home() {
     }
   };
 
+  const fetchJoinedChallenges = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/challenges/mine`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Error fetching joined challenges:");
+      }
+      if (!Array.isArray(data.challenges)) {
+        console.error("Unexpected response format:", data);
+        return;
+      }
+
+      const joinedIds = new Set<string>(
+        data.challenges.map((challenge: Challenge) => challenge.id)
+      );
+      setJoinedChallengeIds(joinedIds);
+    } catch (error) {
+      console.log("Join/Leave error", error);
+    }
+  };
+
   useEffect(() => {
+    fetchJoinedChallenges();
     fetchChallenges();
   }, []);
 
@@ -89,27 +121,89 @@ export default function Home() {
     }
   };
 
-  const renderChallenges: ListRenderItem<Challenge> = ({ item }) => (
-    <View style={styles.challengeCard}>
-      <View style={styles.challengeHeader}>
-        <View style={styles.userInfo}>
-          <Text style={styles.username}>Hello {item.creatorName}</Text>
+  const handleJoinLeaveChallenge = async (challengeId: string) => {
+    const hasJoined = joinedChallengeIds.has(challengeId);
+    // Add loading state to prevent spam clicks
+    if (processingIds.has(challengeId)) return;
+    setProcessingIds((prev) => new Set(prev).add(challengeId));
+
+    try {
+      const res = await fetch(
+        `${API_URL}/api/challenges/${challengeId}/${
+          hasJoined ? "leave" : "join"
+        }`,
+        {
+          method: hasJoined ? "DELETE" : "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) {
+        Alert.alert(data.message || "Something went wrong");
+        return;
+      }
+
+      // Only update state after successful API response
+      setJoinedChallengeIds((prev) => {
+        const updated = new Set(prev);
+        if (hasJoined) {
+          updated.delete(challengeId);
+        } else {
+          updated.add(challengeId);
+        }
+        return updated;
+      });
+    } catch (error) {
+      console.log("Join/Leave error", error);
+      Alert.alert("Network error. Please try again.");
+    } finally {
+      setProcessingIds((prev) => {
+        const updated = new Set(prev);
+        updated.delete(challengeId);
+        return updated;
+      });
+    }
+  };
+
+  const renderChallenges: ListRenderItem<Challenge> = ({ item }) => {
+    const hasJoined = joinedChallengeIds.has(item.id);
+    return (
+      <View style={styles.challengeCard}>
+        <View style={styles.challengeHeader}>
+          <View style={styles.userInfo}>
+            <Text style={styles.username}>Posted by {item.creatorName}</Text>
+          </View>
         </View>
+        <View style={styles.challengeImageContainer}>
+          <Image
+            source={item.image}
+            style={styles.challengeImage}
+            contentFit="cover"
+          />
+        </View>
+        <View style={styles.challengeDetails}>
+          <Text style={styles.challengeTitle}>{item.title}</Text>
+          <Text style={styles.description}>{item.description}</Text>
+          <Text style={styles.date}>{formatPublishDate(item.createdAt)}</Text>
+        </View>
+
+        <Pressable
+          style={[styles.button, hasJoined && { backgroundColor: COLORS.red }]}
+          onPress={() => handleJoinLeaveChallenge(item.id)}
+        >
+          <Text style={styles.buttonText}>{hasJoined ? "Leave" : "Join"}</Text>
+          <Ionicons
+            name={hasJoined ? "close-outline" : "checkmark-done-sharp"}
+            size={30}
+            color={COLORS.white}
+          />
+        </Pressable>
       </View>
-      <View style={styles.challengeImageContainer}>
-        <Image
-          source={item.image}
-          style={styles.challengeImage}
-          contentFit="cover"
-        />
-      </View>
-      <View style={styles.challengeDetails}>
-        <Text style={styles.challengeTitle}>{item.title}</Text>
-        <Text style={styles.description}>{item.description}</Text>
-        <Text style={styles.date}>{formatPublishDate(item.createdAt)}</Text>
-      </View>
-    </View>
-  );
+    );
+  };
 
   if (loading) {
     return <Loader />;
@@ -126,7 +220,10 @@ export default function Home() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={() => fetchChallenges(1, true)}
+            onRefresh={async () => {
+              await fetchJoinedChallenges();
+              await fetchChallenges(1, true);
+            }}
             colors={[COLORS.primary]}
             tintColor={COLORS.primary}
           />
