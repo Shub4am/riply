@@ -132,6 +132,28 @@ const styles = StyleSheet.create({
   footerLoader: {
     marginVertical: 20,
   },
+  button: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    height: 50,
+    marginTop: 16,
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  buttonText: {
+    color: COLORS.white,
+    fontSize: 20,
+    fontFamily: "Poppins-Medium",
+    includeFontPadding: false,
+  },
 });
 
 export default styles;
