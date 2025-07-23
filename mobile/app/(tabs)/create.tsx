@@ -188,6 +188,7 @@ export default function Create() {
                   placeholderTextColor={COLORS.placeholderText}
                   value={title}
                   onChangeText={setTitle}
+                  maxLength={30}
                 />
               </View>
             </View>
@@ -201,6 +202,7 @@ export default function Create() {
                 value={description}
                 onChangeText={setDescription}
                 multiline
+                maxLength={200}
               />
             </View>
             {/* Sumbit Challenge button  */}
