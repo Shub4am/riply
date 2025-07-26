@@ -11,7 +11,7 @@ import { requireAuth } from "../middleware/auth.middleware.ts";
 const router = express.Router();
 
 router.post("/", requireAuth, createChallenge);
-router.get("/", getAllChallenges);
+router.get("/", requireAuth, getAllChallenges);
 router.post("/:id/join", requireAuth, joinChallenge);
 router.delete("/:id/leave", requireAuth, leaveChallenge);
 router.get("/mine", requireAuth, getUserChallenges);
