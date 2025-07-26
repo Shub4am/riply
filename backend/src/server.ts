@@ -8,6 +8,8 @@ import job from "./config/cron.ts";
 dotenv.config();
 const app = express();
 
+app.disable("x-powered-by");
+
 job.start();
 app.use(cors());
 app.use(express.json());
