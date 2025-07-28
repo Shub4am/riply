@@ -45,31 +45,35 @@ export default function Create() {
           return;
         }
       }
-      // launch the image library
-      let result = await ImagePicker.launchImageLibraryAsync({
+
+      // Launch the image library
+      const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 0.5, //lower quality for smaller base64
+        quality: 0.2,
         base64: true,
+        exif: false,
       });
 
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
+      if (result.canceled) {
+        return;
+      }
 
-        // if base64 is provided use it
-        if (result.assets[0].base64) {
-          setImageBase64(result.assets[0].base64);
-        } else {
-          // convert it to base64
-          const base64 = await FileSystem.readAsStringAsync(
-            result.assets[0].uri,
-            {
-              encoding: FileSystem.EncodingType.Base64,
-            }
-          );
-          setImageBase64(base64);
-        }
+      setImage(result.assets[0].uri);
+      // Get base64 data
+      let base64Data;
+      if (result.assets[0].base64) {
+        base64Data = result.assets[0].base64;
+      } else {
+        base64Data = await FileSystem.readAsStringAsync(result.assets[0].uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
+
+      // Validate base64 size
+      if (validateBase64Size(base64Data)) {
+        setImageBase64(base64Data);
       }
     } catch (error) {
       console.error("Error uploading image", error);
@@ -77,15 +81,27 @@ export default function Create() {
     }
   };
 
+  const validateBase64Size = (base64: string): boolean => {
+    const base64Size = (base64.length * 3) / 4;
+    const base64SizeInKB = base64Size / 1024;
+
+    if (base64SizeInKB > 500) {
+      Alert.alert(
+        "Error",
+        "Converted image is too large. Please choose a smaller image."
+      );
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async () => {
     if (!title || !description || !imageBase64) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
-
     try {
       setLoading(true);
-
       // get file extension from URI  or default tp jpeg
       const uriparts = image?.split(".");
       const fileType =
@@ -111,6 +127,13 @@ export default function Create() {
         }),
       });
 
+      if (response.status === 413) {
+        Alert.alert(
+          "Error",
+          "Image size is too large. Please choose a smaller image, or try cropping it."
+        );
+        return;
+      }
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Something went wrong");
 
@@ -120,8 +143,6 @@ export default function Create() {
       setImage(null);
       setImageBase64(null);
       router.push("/(tabs)/home");
-
-      //
     } catch (error) {
       console.error("Error creating post:", error);
       const errorMessage =

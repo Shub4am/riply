@@ -31,6 +31,15 @@ export const createChallenge = async (
     const { title, description, image } = parsed.data;
     const userId = req.user?.id;
 
+    const base64Data = image.split(",")[1];
+    const buffer = Buffer.from(base64Data, "base64");
+    const maxSizeInBytes = 200 * 1024;
+    if (buffer.length > maxSizeInBytes) {
+      return res.status(413).json({
+        message: "Image too large. Max allowed size is 200KB.",
+      });
+    }
+
     const uploadResponse = await cloudinary.uploader.upload(image);
     const imageUrl = uploadResponse.secure_url;
 
