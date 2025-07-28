@@ -90,7 +90,7 @@ export default function Home() {
           <View style={styles.header}>
             <Text style={styles.headerTitle}>RIPLY</Text>
             <Text style={styles.headerSubtitle}>
-              Discover friendly workout challenges
+              Discover friendly challenges
             </Text>
           </View>
         }
