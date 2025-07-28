@@ -1,6 +1,14 @@
 # RIPLY App (Backend and Mobile Frontend)
 
 ---
+## App Screenshots:
+<img  width="200" height="768"  alt="Image" src="https://github.com/user-attachments/assets/be92b089-6c0f-4e2c-9462-32ced0a4f637" />
+<img width="200" height="768" alt="Image" src="https://github.com/user-attachments/assets/a7380798-df96-4198-bad7-64b564d4c129" />
+<img width="200" height="768" alt="Image" src="https://github.com/user-attachments/assets/a63f781e-7742-4cbe-9d76-c6d1ac66c179" />
+<img width="200" height="768" alt="Image" src="https://github.com/user-attachments/assets/0620599e-5a9f-4d24-8f63-70db48118808" />
+<img width="200" height="768" alt="Image" src="https://github.com/user-attachments/assets/f2591f6e-a99f-4dd0-9b02-2fa3c0f77ec1" />
+
+---
 
 ## Backend (Node.js, Express, PostgreSQL with Drizzle ORM, Zod)
 
