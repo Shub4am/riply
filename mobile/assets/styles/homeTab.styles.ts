@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: COLORS.textPrimary,
     textAlign: "center",
     fontFamily: "Poppins-Regular",
     includeFontPadding: false,
@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 3,
+    elevation: 20,
     borderWidth: 1,
     borderColor: COLORS.border,
   },
